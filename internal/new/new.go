@@ -1,18 +1,26 @@
 package new
 
 
-type Site struct {
+type Router struct {
     Name string
 }
 
 
-
-func NewSite() *Site {           
-    return &Site{
-        Name: "",
-    }
+type Site struct {
+    Name   string
+    Path   string
+    Router *Router
 }
 
 
 
+func NewRouter() *Router {
+    return &Router{}        
+}
 
+
+func NewSite() *Site {
+    return &Site{
+        Router: NewRouter(),
+    }
+}

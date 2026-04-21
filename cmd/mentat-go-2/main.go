@@ -21,7 +21,7 @@ func main() {
     }
 
     for _, s := range sites {
-      fmt.Printf("Site %s was read.\n", s.Name)
+      fmt.Printf("Site %s was read. Router: %s\n", s.Name, s.Router.Name)
     }
 }
 

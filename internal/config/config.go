@@ -4,11 +4,12 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mgoulish/mentat-go-2/internal/new"
 )
 
-// ReadSites reads the directory and returns a slice of *new.Site for each entry.
+
 func ReadSites(root string) ([]*new.Site, error) {
     fmt.Printf("Reading sites from root %s\n", root)
 
@@ -20,13 +21,34 @@ func ReadSites(root string) ([]*new.Site, error) {
     sites := make([]*new.Site, 0, len(entries))
 
     for _, entry := range entries {
-	s := new.NewSite()        // returns *Site
-	s.Name = entry.Name()     // set the name
+	site := new.NewSite()        
+	site.Name = entry.Name()    
+	site.Path = root + "/" + site.Name
 
-	sites = append(sites, s)
+	routerPath := site.Path + "/pods"
+	ReadRouter(routerPath, site.Router)
 
-	//fmt.Println("Read Site :", s.Name)
+	sites = append(sites, site)
     }
 
     return sites, nil
 }
+
+
+
+func ReadRouter(path string, router *new.Router) error {
+
+    entries, err := os.ReadDir(path)
+    if err != nil {
+	return err
+    }
+    for _, entry := range entries {
+	name := entry.Name()
+	if strings.HasPrefix(name, "skupper-router") {
+	  router.Name = name
+	}
+    }
+    return nil
+}
+
+
