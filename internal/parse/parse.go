@@ -31,16 +31,18 @@ func ParseRouterLog(path string) error {
 
 
 
-func findTopologyCalcs(filename string) error {
+func findTopologyCalcs(filename string) ([]*LogEntry, error) {
     // Open the file
     file, err := os.Open(filename)
     if err != nil {
-        return fmt.Errorf("error opening file %s: %w", filename, err)
+        return nil, fmt.Errorf("error opening file %s: %w", filename, err)
     }
     defer file.Close()
 
     // Create a scanner to read the file line by line
     scanner := bufio.NewScanner(file)
+
+    var entries []*LogEntry
 
     lineNum := 1
     for scanner.Scan() {
@@ -52,6 +54,7 @@ func findTopologyCalcs(filename string) error {
 		fmt.Println("findTopologyCalcs error: %v", err)
 		continue
 	    }
+	    entries = append(entries, entry)
 	    fmt.Printf("    Time: %s\n", entry.Timestamp.Format(time.RFC3339Nano))
 	    //fmt.Printf("    Map:  %+v\n", entry.MapData)
 	    if 0 == len(entry.MapData) {
@@ -70,10 +73,10 @@ func findTopologyCalcs(filename string) error {
 
     // Check for errors during scanning
     if err := scanner.Err(); err != nil {
-        return fmt.Errorf("error reading file %s: %w", filename, err)
+        return nil, fmt.Errorf("error reading file %s: %w", filename, err)
     }
 
-    return nil
+    return entries, nil
 }
 
 
