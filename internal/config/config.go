@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/mgoulish/mentat-go-2/internal/new"
+	"github.com/mgoulish/mentat-go-2/internal/parse"
 )
 
 
@@ -46,6 +47,8 @@ func ReadRouter(path string, router *new.Router) error {
 	name := entry.Name()
 	if strings.HasPrefix(name, "skupper-router") {
 	  router.Name = name
+	  log_dir_path := path + "/" + name + "/" + "logs"
+	  parse.ParseRouterLog(log_dir_path)
 	}
     }
     return nil
