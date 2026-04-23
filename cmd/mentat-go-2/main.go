@@ -20,8 +20,12 @@ func main() {
       return
     }
 
-    for _, s := range sites {
-      fmt.Printf("Site %s was read. Router: %s\n", s.Name, s.Router.Name)
+    for _, site := range sites {
+        fmt.Printf("Site %s was read. Router: %s\n", site.Name, site.Router.Name)
+        _, ok := site.Router.Data["topology calcs"]
+        if ok {
+            fmt.Printf("    router has topology calcs.\n" )
+        } 
     }
 }
 

@@ -3,6 +3,7 @@ package new
 
 type Router struct {
     Name string
+    Data map[string]interface{}
 }
 
 
@@ -15,7 +16,9 @@ type Site struct {
 
 
 func NewRouter() *Router {
-    return &Router{}        
+    return &Router{
+	       Data:  make(map[string]interface{}),
+           }        
 }
 
 

@@ -7,23 +7,30 @@ import (
     "regexp"
     "strings"
     "time"
+
+    "github.com/mgoulish/mentat-go-2/internal/new"
 )
 
 
 
-func ParseRouterLog(path string) error {
-    fmt.Printf ( "Read router log at %s\n", path )
+func ParseRouterLogs(path string, router *new.Router) error {
+    //fmt.Printf ( "Read router log at %s\n", path )
 
     entries, err := os.ReadDir(path)
     if err != nil {
         return err
     }
     for _, entry := range entries {
-        name := entry.Name()
-	if strings.HasPrefix(name, "router-logs") {
-	    router_log_path := path + "/" + name
-            fmt.Printf ( "ParseRouterLog: %s\n", router_log_path )
-	    findTopologyCalcs ( router_log_path )
+        entry_name := entry.Name()
+	if strings.HasPrefix(entry_name, "router-logs") {
+	    router_log_path := path + "/" + entry_name
+            //fmt.Printf ( "ParseRouterLog: %s\n", router_log_path )
+
+	    topology_calcs, err := findTopologyCalcs ( router_log_path )
+	    if err != nil {
+	      return err
+	    }
+	    router.Data["topology calcs"] = topology_calcs
 	}
     }
     return nil
@@ -48,15 +55,15 @@ func findTopologyCalcs(filename string) ([]*LogEntry, error) {
     for scanner.Scan() {
 	line := scanner.Text()
 	if strings.Contains(line, "Computed next hops") {
-	    fmt.Printf("Line %d: %s\n", lineNum, line)
+	    //fmt.Printf("Line %d: %s\n", lineNum, line)
 	    entry, err := parseRouterLog(line)   // TODO change name of fn
 	    if err != nil {
 		fmt.Println("findTopologyCalcs error: %v", err)
 		continue
 	    }
 	    entries = append(entries, entry)
+	    /*
 	    fmt.Printf("    Time: %s\n", entry.Timestamp.Format(time.RFC3339Nano))
-	    //fmt.Printf("    Map:  %+v\n", entry.MapData)
 	    if 0 == len(entry.MapData) {
 	        fmt.Printf("    Map:  empty\n")
 	    } else {
@@ -67,6 +74,7 @@ func findTopologyCalcs(filename string) ([]*LogEntry, error) {
 	    }
 
 	    fmt.Println("------------")
+	    */
 	}
         lineNum++
     }

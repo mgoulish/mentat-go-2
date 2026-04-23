@@ -2,7 +2,7 @@
 package config
 
 import (
-	"fmt"
+	//"fmt"
 	"os"
 	"strings"
 
@@ -12,7 +12,7 @@ import (
 
 
 func ReadSites(root string) ([]*new.Site, error) {
-    fmt.Printf("Reading sites from root %s\n", root)
+    //fmt.Printf("Reading sites from root %s\n", root)
 
     entries, err := os.ReadDir(root)
     if err != nil {
@@ -47,8 +47,11 @@ func ReadRouter(path string, router *new.Router) error {
 	name := entry.Name()
 	if strings.HasPrefix(name, "skupper-router") {
 	  router.Name = name
+	  //fmt.Printf ( "ReadRouter:  reading router %s\n", router.Name )
 	  log_dir_path := path + "/" + name + "/" + "logs"
-	  parse.ParseRouterLog(log_dir_path)
+	  parse.ParseRouterLogs(log_dir_path, router)
+
+
 	}
     }
     return nil
