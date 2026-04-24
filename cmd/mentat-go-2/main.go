@@ -5,6 +5,7 @@ import (
     "fmt"
     
     "github.com/mgoulish/mentat-go-2/internal/config"
+    "github.com/mgoulish/mentat-go-2/internal/connectivity"
 )
 
 func main() {
@@ -22,10 +23,7 @@ func main() {
 
     for _, site := range sites {
         fmt.Printf("Site %s was read. Router: %s\n", site.Name, site.Router.Name)
-        _, ok := site.Router.Data["topology calcs"]
-        if ok {
-            fmt.Printf("    router has topology calcs.\n" )
-        } 
+	connectivity.Connectivity(site.Router)
     }
 }
 

@@ -1,5 +1,17 @@
 package parse
 
+/*==============================================================
+  Parse is responsible only for pulling useful information out
+  of the various files available.
+
+  Other packages interpret this information into higher-level 
+  abstractions.
+
+  For example, Connectivity interprets it into info about when
+  each router was connected to what.
+==============================================================*/
+
+
 import (
     "bufio"
     "fmt"
@@ -11,6 +23,14 @@ import (
     "github.com/mgoulish/mentat-go-2/internal/new"
 )
 
+
+type NextHops struct {
+	Timestamp time.Time
+	MapData   map[string]string
+	Message   string // e.g. "ROUTER_LS (info) Computed next hops"
+	RawLine   string
+	LineNum   int
+}
 
 
 func ParseRouterLogs(path string, router *new.Router) error {
@@ -38,7 +58,7 @@ func ParseRouterLogs(path string, router *new.Router) error {
 
 
 
-func findTopologyCalcs(filename string) ([]*LogEntry, error) {
+func findTopologyCalcs(filename string) ([]*NextHops, error) {
     // Open the file
     file, err := os.Open(filename)
     if err != nil {
@@ -49,19 +69,19 @@ func findTopologyCalcs(filename string) ([]*LogEntry, error) {
     // Create a scanner to read the file line by line
     scanner := bufio.NewScanner(file)
 
-    var entries []*LogEntry
+    var nextHops_list []*NextHops
 
     lineNum := 1
     for scanner.Scan() {
 	line := scanner.Text()
 	if strings.Contains(line, "Computed next hops") {
 	    //fmt.Printf("Line %d: %s\n", lineNum, line)
-	    entry, err := parseRouterLog(line)   // TODO change name of fn
+	    entry, err := parseNextHops(line, lineNum)
 	    if err != nil {
 		fmt.Println("findTopologyCalcs error: %v", err)
 		continue
 	    }
-	    entries = append(entries, entry)
+	    nextHops_list = append(nextHops_list, entry)
 	    /*
 	    fmt.Printf("    Time: %s\n", entry.Timestamp.Format(time.RFC3339Nano))
 	    if 0 == len(entry.MapData) {
@@ -84,7 +104,7 @@ func findTopologyCalcs(filename string) ([]*LogEntry, error) {
         return nil, fmt.Errorf("error reading file %s: %w", filename, err)
     }
 
-    return entries, nil
+    return nextHops_list, nil
 }
 
 
@@ -93,15 +113,7 @@ func findTopologyCalcs(filename string) ([]*LogEntry, error) {
 
 
 
-type LogEntry struct {
-	Timestamp time.Time
-	MapData   map[string]string
-	Message   string // e.g. "ROUTER_LS (info) Computed next hops"
-	RawLine   string
-}
-
-// parseRouterLog now correctly handles both normal and empty maps
-func parseRouterLog(line string) (*LogEntry, error) {
+func parseNextHops(line string, lineNumber int) (*NextHops, error) {
 	// Improved regex: captures timestamp + everything after it
 	re := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6} [+-]\d{4})\s+(.*)$`)
 	matches := re.FindStringSubmatch(line)
@@ -149,11 +161,12 @@ func parseRouterLog(line string) (*LogEntry, error) {
 		return nil, fmt.Errorf("map parse error: %w", err)
 	}
 
-	return &LogEntry{
+	return &NextHops{
 		Timestamp: t,
 		MapData:   data,
 		Message:   message,
 		RawLine:   line,
+		LineNum:   lineNumber,
 	}, nil
 }
 
@@ -231,7 +244,7 @@ func main() {
 	}
 
 	for _, line := range testLines {
-		entry, err := parseRouterLog(line)
+		entry, err := parseNextHops(line)
 		if err != nil {
 			fmt.Println("Error:", err)
 			continue
