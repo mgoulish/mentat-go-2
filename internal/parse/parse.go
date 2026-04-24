@@ -20,20 +20,11 @@ import (
     "strings"
     "time"
 
-    "github.com/mgoulish/mentat-go-2/internal/new"
+    "github.com/mgoulish/mentat-go-2/internal/types"
 )
 
 
-type NextHops struct {
-	Timestamp time.Time
-	MapData   map[string]string
-	Message   string // e.g. "ROUTER_LS (info) Computed next hops"
-	RawLine   string
-	LineNum   int
-}
-
-
-func ParseRouterLogs(path string, router *new.Router) error {
+func ParseRouterLogs(path string, router *types.Router) error { 
     //fmt.Printf ( "Read router log at %s\n", path )
 
     entries, err := os.ReadDir(path)
@@ -50,7 +41,7 @@ func ParseRouterLogs(path string, router *new.Router) error {
 	    if err != nil {
 	      return err
 	    }
-	    router.Data["topology calcs"] = topology_calcs
+	    router.TopologyCalcs = topology_calcs
 	}
     }
     return nil
@@ -58,7 +49,7 @@ func ParseRouterLogs(path string, router *new.Router) error {
 
 
 
-func findTopologyCalcs(filename string) ([]*NextHops, error) {
+func findTopologyCalcs(filename string) ([]*types.NextHops, error) {
     // Open the file
     file, err := os.Open(filename)
     if err != nil {
@@ -69,7 +60,7 @@ func findTopologyCalcs(filename string) ([]*NextHops, error) {
     // Create a scanner to read the file line by line
     scanner := bufio.NewScanner(file)
 
-    var nextHops_list []*NextHops
+    var nextHops_list []*types.NextHops
 
     lineNum := 1
     for scanner.Scan() {
@@ -113,7 +104,7 @@ func findTopologyCalcs(filename string) ([]*NextHops, error) {
 
 
 
-func parseNextHops(line string, lineNumber int) (*NextHops, error) {
+func parseNextHops(line string, lineNumber int) (*types.NextHops, error) {
 	// Improved regex: captures timestamp + everything after it
 	re := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6} [+-]\d{4})\s+(.*)$`)
 	matches := re.FindStringSubmatch(line)
@@ -161,7 +152,7 @@ func parseNextHops(line string, lineNumber int) (*NextHops, error) {
 		return nil, fmt.Errorf("map parse error: %w", err)
 	}
 
-	return &NextHops{
+	return &types.NextHops{
 		Timestamp: t,
 		MapData:   data,
 		Message:   message,

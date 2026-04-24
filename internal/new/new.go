@@ -1,29 +1,19 @@
 package new
 
+import "github.com/mgoulish/mentat-go-2/internal/types"
 
-type Router struct {
-    Name string
-    Data map[string]interface{}
+func NewRouter(name string) *types.Router {   // ← added name parameter
+	return &types.Router{
+		Name:          name,
+		TopologyCalcs: make([]*types.NextHops, 0),
+	}
+}
+
+func NewSite() *types.Site {
+	return &types.Site{
+		Router: NewRouter(""), // name will be set later
+	}
 }
 
 
-type Site struct {
-    Name   string
-    Path   string
-    Router *Router
-}
 
-
-
-func NewRouter() *Router {
-    return &Router{
-	       Data:  make(map[string]interface{}),
-           }        
-}
-
-
-func NewSite() *Site {
-    return &Site{
-        Router: NewRouter(),
-    }
-}

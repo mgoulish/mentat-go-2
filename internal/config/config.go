@@ -1,4 +1,3 @@
-
 package config
 
 import (
@@ -7,11 +6,12 @@ import (
 	"strings"
 
 	"github.com/mgoulish/mentat-go-2/internal/new"
+	"github.com/mgoulish/mentat-go-2/internal/types"
 	"github.com/mgoulish/mentat-go-2/internal/parse"
 )
 
 
-func ReadSites(root string) ([]*new.Site, error) {
+func ReadSites(root string) ([]*types.Site, error) {
     //fmt.Printf("Reading sites from root %s\n", root)
 
     entries, err := os.ReadDir(root)
@@ -19,7 +19,7 @@ func ReadSites(root string) ([]*new.Site, error) {
 	return nil, err
     }
 
-    sites := make([]*new.Site, 0, len(entries))
+    sites := make([]*types.Site, 0, len(entries))
 
     for _, entry := range entries {
 	site := new.NewSite()        
@@ -37,7 +37,7 @@ func ReadSites(root string) ([]*new.Site, error) {
 
 
 
-func ReadRouter(path string, router *new.Router) error {
+func ReadRouter(path string, router *types.Router) error {
 
     entries, err := os.ReadDir(path)
     if err != nil {
@@ -50,8 +50,6 @@ func ReadRouter(path string, router *new.Router) error {
 	  //fmt.Printf ( "ReadRouter:  reading router %s\n", router.Name )
 	  log_dir_path := path + "/" + name + "/" + "logs"
 	  parse.ParseRouterLogs(log_dir_path, router)
-
-
 	}
     }
     return nil
