@@ -73,19 +73,6 @@ func findTopologyCalcs(filename string) ([]*types.NextHops, error) {
 		continue
 	    }
 	    nextHops_list = append(nextHops_list, entry)
-	    /*
-	    fmt.Printf("    Time: %s\n", entry.Timestamp.Format(time.RFC3339Nano))
-	    if 0 == len(entry.MapData) {
-	        fmt.Printf("    Map:  empty\n")
-	    } else {
-	        fmt.Printf("    Map:  \n")
-	        for key, value := range entry.MapData {
-                    fmt.Println("        ", key, "->", value)
-	        }
-	    }
-
-	    fmt.Println("------------")
-	    */
 	}
         lineNum++
     }
@@ -154,6 +141,7 @@ func parseNextHops(line string, lineNumber int) (*types.NextHops, error) {
 
 	return &types.NextHops{
 		Timestamp: t,
+		Micros:    t.UnixMicro(),
 		MapData:   data,
 		Message:   message,
 		RawLine:   line,

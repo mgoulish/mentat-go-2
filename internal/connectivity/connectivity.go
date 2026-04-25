@@ -1,40 +1,50 @@
 package connectivity
 
 import (
-	"fmt"
-	"sort"
+    "fmt"
 
-	"github.com/mgoulish/mentat-go-2/internal/types"
+    "github.com/mgoulish/mentat-go-2/internal/new"
+    "github.com/mgoulish/mentat-go-2/internal/types"
 )
 
+
+
 func Connectivity(router *types.Router) {
-	if len(router.TopologyCalcs) == 0 {
-		fmt.Printf("Connectivity: Router %s has no topology calculations\n", router.Name)
-		return
+    if len(router.TopologyCalcs) == 0 {
+	fmt.Printf("Connectivity: Router %s has no topology calculations\n", router.Name)
+	return
+    }
+
+    fmt.Printf("Connectivity: Router %s — %d topology calculations\n", 
+	router.Name, len(router.TopologyCalcs))
+
+    for _, calc := range router.TopologyCalcs {
+	// Each topology calc becomes one Connectivity Event
+	ce := new.NewConnectivityEvent()
+        time_str := calc.Timestamp.Format("15:04:05.123")
+	ce.Timestamp = time_str
+	fmt.Printf("\n%s == %d\n", time_str, calc.Micros)
+	ce.Timestamp = time_str
+	ce.Micros    = calc.Timestamp.UnixMicro()
+
+	if len(calc.MapData) == 0 {
+	    fmt.Println("    NO NEIGHBORS")
+	    router.ConnectivityEvents = append(router.ConnectivityEvents, ce)
+	    continue
 	}
 
-	fmt.Printf("Connectivity: Router %s — %d topology calculations\n", 
-		router.Name, len(router.TopologyCalcs))
-
-	for _, calc := range router.TopologyCalcs {
-		fmt.Printf("\n%s  %s\n", 
-			calc.Timestamp.Format("15:04:05"),
-			calc.Message)
-
-		if len(calc.MapData) == 0 {
-			fmt.Println("    (empty map)")
-			continue
-		}
-
-		// Sorted keys for nice output
-		keys := make([]string, 0, len(calc.MapData))
-		for k := range calc.MapData {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-
-		for _, key := range keys {
-			fmt.Printf("    %-50s → %s\n", key, calc.MapData[key])
-		}
+	// This topology calc may contain many next-hop calcs.
+	for dest, next_hop := range calc.MapData {
+	    fmt.Printf("dest: %s, next_hop: %s\n", dest, next_hop)
+	    if dest == next_hop {
+	        fmt.Printf("    NEIGHBOR: %s\n", next_hop)
+		ce.Neighbors = append(ce.Neighbors, next_hop)
+	    }
 	}
+
+	router.ConnectivityEvents = append(router.ConnectivityEvents, ce)
+    }
 }
+
+
+
