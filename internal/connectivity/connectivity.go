@@ -15,34 +15,61 @@ func Connectivity(router *types.Router) {
 	return
     }
 
-    fmt.Printf("Connectivity: Router %s — %d topology calculations\n", 
-	router.Name, len(router.TopologyCalcs))
+    //fmt.Printf("Connectivity: Router %s — %d topology calculations\n", 
+	//router.Name, len(router.TopologyCalcs))
 
     for _, calc := range router.TopologyCalcs {
 	// Each topology calc becomes one Connectivity Event
 	ce := new.NewConnectivityEvent()
-        time_str := calc.Timestamp.Format("15:04:05.123")
+        //time_str := calc.Timestamp.Format("15:04:05.123")
+        time_str := calc.Timestamp.Format("2006-01-02 15:04:05.123")
 	ce.Timestamp = time_str
-	fmt.Printf("\n%s == %d\n", time_str, calc.Micros)
+	//fmt.Printf("\n%s == %d\n", time_str, calc.Micros)
 	ce.Timestamp = time_str
 	ce.Micros    = calc.Timestamp.UnixMicro()
 
 	if len(calc.MapData) == 0 {
-	    fmt.Println("    NO NEIGHBORS")
+	    //fmt.Println("    NO NEIGHBORS")
 	    router.ConnectivityEvents = append(router.ConnectivityEvents, ce)
 	    continue
 	}
 
 	// This topology calc may contain many next-hop calcs.
 	for dest, next_hop := range calc.MapData {
-	    fmt.Printf("dest: %s, next_hop: %s\n", dest, next_hop)
+	    //fmt.Printf("dest: %s, next_hop: %s\n", dest, next_hop)
 	    if dest == next_hop {
-	        fmt.Printf("    NEIGHBOR: %s\n", next_hop)
+	        //fmt.Printf("    NEIGHBOR: %s\n", next_hop)
 		ce.Neighbors = append(ce.Neighbors, next_hop)
 	    }
 	}
 
 	router.ConnectivityEvents = append(router.ConnectivityEvents, ce)
+    }
+}
+
+
+
+func Print(sites []*types.Site) {
+    shift_width := "    " // 4 spaces
+    fmt.Printf("\nConnection History\n------------------------------\n")
+    for _, site := range sites {
+        indent := ""
+        fmt.Printf("Site: %s\n", site.Name)
+        router := site.Router
+        r_indent := indent + shift_width
+        fmt.Printf("%sRouter: %s\n", r_indent, router.Name)
+        for _, ce := range router.ConnectivityEvents {
+	    t_indent := r_indent + shift_width
+            fmt.Printf("%sat time %s neigbors are:\n", t_indent, ce.Timestamp)
+	    n_indent := t_indent + shift_width
+	    if len(ce.Neighbors) < 1 {
+	            fmt.Printf("%sNO NEIGHBORS\n", n_indent)
+	    } else {
+	        for _, neighbor := range ce.Neighbors {
+	            fmt.Printf("%s%s\n", n_indent, neighbor)
+		}
+	    }
+        }
     }
 }
 

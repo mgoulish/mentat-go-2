@@ -100,6 +100,7 @@ func parseNextHops(line string, lineNumber int) (*types.NextHops, error) {
 	}
 
 	timestampStr := matches[1]
+	//fmt.Printf ( "MDEBUG timestampStr is %s\n", timestampStr)
 	rest := matches[2]
 
 	// Parse timestamp

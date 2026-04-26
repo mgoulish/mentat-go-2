@@ -25,11 +25,15 @@ func main() {
         fmt.Printf("Site %s was read. Router: %s\n", site.Name, site.Router.Name)
 	connectivity.Connectivity(site.Router)
 
+	/*
 	for _, ce := range site.Router.ConnectivityEvents {
 	  fmt.Printf ( "    CE: %d\n", ce.Micros )
 	  fmt.Printf ( "        %v\n", ce.Neighbors )
 	}
+	*/
     }
+
+    connectivity.Print(sites)
 }
 
 
