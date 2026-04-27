@@ -21,19 +21,11 @@ func main() {
       return
     }
 
-    for _, site := range sites {
-        fmt.Printf("Site %s was read. Router: %s\n", site.Name, site.Router.Name)
-	connectivity.Connectivity(site.Router)
-
-	/*
-	for _, ce := range site.Router.ConnectivityEvents {
-	  fmt.Printf ( "    CE: %d\n", ce.Micros )
-	  fmt.Printf ( "        %v\n", ce.Neighbors )
-	}
-	*/
-    }
-
+    // Demonstrate connectivity functionality
+    connectivity.Find(sites)
     connectivity.Print(sites)
+    connectivity.Check(sites, "2025-09-09 14:00:00")
+    connectivity.Check(sites, "2025-09-16 04:20:00")
 }
 
 
