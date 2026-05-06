@@ -22,6 +22,10 @@ func Analyze(rootDir string) ([]*types.Site, error) {   // adjust type if needed
 		return nil, fmt.Errorf("failed to read sites: %w", err)
 	}
 
+	for _, site := range sites {
+	        connectivity.Find(site)
+	}
+
 	connectivity.Find(sites)
 	return sites, nil
 }
