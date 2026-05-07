@@ -9,7 +9,8 @@ import (
 	"github.com/goccy/go-yaml"
 
 	"github.com/mgoulish/mentat-go-2/internal/new"
-	"github.com/mgoulish/mentat-go-2/internal/parse"
+	//"github.com/mgoulish/mentat-go-2/internal/parse"
+	"github.com/mgoulish/mentat-go-2/internal/router"
 	"github.com/mgoulish/mentat-go-2/internal/types"
 )
 
@@ -53,27 +54,14 @@ func ReadSite(root string) (*types.Site, error) {
 			}
 
 			fmt.Println("Name:", yaml_site.Metadata.Name)
-			fmt.Println("Namespace:", yaml_site.Metadata.Namespace)
+			site.Name = yaml_site.Metadata.Name
+			site.Path = full_path
+			//fmt.Println("Namespace:", yaml_site.Metadata.Namespace)
 		}
 	}
+
+	router.Read(root + "/site-namespace/logs", site.Router)
 
 	return site, nil
 }
 
-func ReadRouter(path string, router *types.Router) error {
-
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return err
-	}
-	for _, entry := range entries {
-		name := entry.Name()
-		if strings.HasPrefix(name, "skupper-router") {
-			router.Name = name
-			//fmt.Printf ( "ReadRouter:  reading router %s\n", router.Name )
-			log_dir_path := path + "/" + name + "/" + "logs"
-			parse.ParseRouterLogs(log_dir_path, router)
-		}
-	}
-	return nil
-}

@@ -4,92 +4,73 @@ package parse
   Parse is responsible only for pulling useful information out
   of the various files available.
 
-  Other packages interpret this information into higher-level 
+  Other packages interpret this information into higher-level
   abstractions.
 
   For example, Connectivity interprets it into info about when
   each router was connected to what.
 ==============================================================*/
 
-
 import (
-    "bufio"
-    "fmt"
-    "os"
-    "regexp"
-    "strings"
-    "time"
+	"bufio"
+	"fmt"
+	"os"
+	"regexp"
+	"strings"
+	"time"
 
-    "github.com/mgoulish/mentat-go-2/internal/types"
+	"github.com/mgoulish/mentat-go-2/internal/types"
 )
 
+func ParseRouterLogs(log_path string, router *types.Router) error {
+	//fmt.Printf ( "Read router log at %s\n", path )
 
-func ParseRouterLogs(path string, router *types.Router) error { 
-    //fmt.Printf ( "Read router log at %s\n", path )
-
-    entries, err := os.ReadDir(path)
-    if err != nil {
-        return err
-    }
-    for _, entry := range entries {
-        entry_name := entry.Name()
-	if strings.HasPrefix(entry_name, "router-logs") {
-	    router_log_path := path + "/" + entry_name
-            //fmt.Printf ( "ParseRouterLog: %s\n", router_log_path )
-
-	    topology_calcs, err := findTopologyCalcs ( router_log_path )
-	    if err != nil {
-	      return err
-	    }
-	    router.TopologyCalcs = topology_calcs
+	topology_calcs, err := findTopologyCalcs(log_path)
+	if err != nil {
+		return err
 	}
-    }
-    return nil
+	router.TopologyCalcs = topology_calcs
+
+	return nil
 }
-
-
 
 func findTopologyCalcs(filename string) ([]*types.NextHops, error) {
-    // Open the file
-    file, err := os.Open(filename)
-    if err != nil {
-        return nil, fmt.Errorf("error opening file %s: %w", filename, err)
-    }
-    defer file.Close()
-
-    // Create a scanner to read the file line by line
-    scanner := bufio.NewScanner(file)
-
-    var nextHops_list []*types.NextHops
-
-    lineNum := 1
-    for scanner.Scan() {
-	line := scanner.Text()
-	if strings.Contains(line, "Computed next hops") {
-	    //fmt.Printf("Line %d: %s\n", lineNum, line)
-	    entry, err := parseNextHops(line, lineNum)
-	    if err != nil {
-		fmt.Println("findTopologyCalcs error: %v", err)
-		continue
-	    }
-	    nextHops_list = append(nextHops_list, entry)
+	// Open the file
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file %s: %w", filename, err)
 	}
-        lineNum++
-    }
+	defer file.Close()
 
-    // Check for errors during scanning
-    if err := scanner.Err(); err != nil {
-        return nil, fmt.Errorf("error reading file %s: %w", filename, err)
-    }
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
 
-    return nextHops_list, nil
+	var nextHops_list []*types.NextHops
+
+	lineNum := 1
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "Computed next hops") {
+			//fmt.Printf("Line %d: %s\n", lineNum, line)
+			entry, err := parseNextHops(line, lineNum)
+			if err != nil {
+				fmt.Println("findTopologyCalcs error: %v", err)
+				continue
+			}
+			nextHops_list = append(nextHops_list, entry)
+		}
+		lineNum++
+	}
+
+	// Check for errors during scanning
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading file %s: %w", filename, err)
+	}
+
+	return nextHops_list, nil
 }
 
-
-
 // Grok ---------------------------------------------
-
-
 
 func parseNextHops(line string, lineNumber int) (*types.NextHops, error) {
 	// Improved regex: captures timestamp + everything after it
