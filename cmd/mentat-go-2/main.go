@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/mgoulish/mentat-go-2/internal/utils"
-	//"github.com/mgoulish/mentat-go-2/internal/connectivity"
+	"github.com/mgoulish/mentat-go-2/internal/config"
 )
 
 var fp = fmt.Printf
@@ -29,6 +29,12 @@ func main() {
 
 	if utils.IsDir(data_path) {
 	  fp("%s is a dir!\n", data_path )
+	  site, err := config.ReadSite(data_path)
+	  fp("Main gets site: %+v\n", site)
+	  if err != nil {
+		fmt.Printf("Error reading site in dir %s: %v\n", data_path, err)
+		return
+	  }
 	} else {
 	  fp("%s is not a dir.\n", data_path)
 	  os.Exit(1)
@@ -38,11 +44,6 @@ func main() {
 
 
 	/*
-	sites, err := config.ReadSites(*root)
-	if err != nil {
-		fmt.Printf("Error reading sites: %v\n", err)
-		return
-	}
 
 	for _, site := range sites {
 		fmt.Printf("main: site: %s\n", site.Name)
