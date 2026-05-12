@@ -2,7 +2,6 @@ package types
 
 import "time"
 
-
 // NextHops represents one "Computed next hops" entry from the logs
 type NextHops struct {
 	Timestamp time.Time
@@ -13,21 +12,18 @@ type NextHops struct {
 	LineNum   int
 }
 
-
 type ConnectivityEvent struct {
-  Timestamp   string
-  Micros      int64
-  Neighbors   []string
+	Timestamp string
+	Micros    int64
+	Neighbors []string
 }
-
 
 // Router is the main container for a router's parsed data
 type Router struct {
-	Name          string
-	TopologyCalcs []*NextHops
+	Name               string
+	TopologyCalcs      []*NextHops
 	ConnectivityEvents []*ConnectivityEvent
 }
-
 
 // Site represents a site containing one router
 type Site struct {
@@ -35,5 +31,3 @@ type Site struct {
 	Path   string
 	Router *Router
 }
-
-

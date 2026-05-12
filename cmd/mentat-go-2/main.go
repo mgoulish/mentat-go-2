@@ -22,21 +22,17 @@ func main() {
 	var err error
 
 	if utils.IsTarGz(*path_arg) {
-		fp("That's a tar file!\n")
 		new_path, e := utils.ExpandTGZFile(*path_arg)
 		if e != nil {
 			fp("error: %s\n", e)
 			os.Exit(1)
 		}
-		fp("new_path is %s\n", new_path)
 		data_path = new_path
 	}
 
 	if utils.IsDir(data_path) {
-		fp("%s is a dir!\n", data_path)
 		site, err = config.ReadSite(data_path)
-		fp("Main gets site: %+v\n", site)
-		if err != nil {
+			if err != nil {
 			fmt.Printf("Error reading site in dir %s: %v\n", data_path, err)
 			return
 		}

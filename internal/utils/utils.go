@@ -1,16 +1,14 @@
 package utils
 
 import (
-  "archive/tar"
-  "compress/gzip"
-  "fmt"
-  "io"
-  "os"
-  "path/filepath"
-  "strings"
+	"archive/tar"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 )
-
-
 
 func IsTarGz(path string) bool {
 	if path == "" {
@@ -21,34 +19,31 @@ func IsTarGz(path string) bool {
 	return strings.HasSuffix(lower, ".tar.gz") || strings.HasSuffix(lower, ".tgz")
 }
 
-
 func IsDir(path string) bool {
-    info, err := os.Stat(path)
-    if err != nil {
-        // Path doesn't exist or is inaccessible
-        return false
-    }
-    return info.IsDir()
+	info, err := os.Stat(path)
+	if err != nil {
+		// Path doesn't exist or is inaccessible
+		return false
+	}
+	return info.IsDir()
 }
-
 
 func ExpandTGZFile(tgzFile string) (string, error) {
-        // Create a temp directory for extraction
-        tmpDir, err := os.MkdirTemp("", "skupper-mentat-*")
-        if err != nil {
-                return "", fmt.Errorf("failed to create temp dir: %w", err)
-        }
-        //defer os.RemoveAll(tmpDir) 
+	// Create a temp directory for extraction
+	tmpDir, err := os.MkdirTemp("", "skupper-mentat-*")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp dir: %w", err)
+	}
+	//defer os.RemoveAll(tmpDir)
 
-        fmt.Printf("📦 Extracting tgz %s to %s...\n", tgzFile, tmpDir)
+	fmt.Printf("📦 Extracting tgz %s to %s...\n", tgzFile, tmpDir)
 
-        if err := extractTarGz(tgzFile, tmpDir); err != nil {
-                return "", err
-        }
+	if err := extractTarGz(tgzFile, tmpDir); err != nil {
+		return "", err
+	}
 
-        return tmpDir, nil
+	return tmpDir, nil
 }
-
 
 func extractTarGz(src, dst string) error {
 	file, err := os.Open(src)
@@ -95,6 +90,3 @@ func extractTarGz(src, dst string) error {
 	}
 	return nil
 }
-
-
-

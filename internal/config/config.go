@@ -43,7 +43,6 @@ func ReadSite(root string) (*types.Site, error) {
 		name := entry.Name()
 		if strings.HasPrefix(name, "Site") && strings.HasSuffix(name, "yaml") {
 			full_path := filepath.Join(dir, name)
-			fp("ReadSite: entry: %s\n", full_path)
 			data, err := os.ReadFile(full_path)
 			if err != nil {
 				panic(fmt.Errorf("failed to read file: %w", err))
@@ -60,8 +59,7 @@ func ReadSite(root string) (*types.Site, error) {
 		}
 	}
 
-	router.Read(root + "/site-namespace/logs", site.Router)
+	router.Read(root+"/site-namespace/logs", site.Router)
 
 	return site, nil
 }
-
